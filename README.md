@@ -12,7 +12,7 @@ The puzzle solutions can be found at [/src/puzzles](/src/puzzles)
 | day        | stars | part 1       | part 2       |
 |------------|-------|--------------|--------------|
 | 2025-12-01 | 2     | 140.866µs    | 215.669µs    |
-| 2025-12-02 | 0     | -            | -            |
+| 2025-12-02 | 1     | 68.023845ms  | -            |
 | 2025-12-03 | 0     | -            | -            |
 | 2025-12-04 | 0     | -            | -            |
 | 2025-12-05 | 0     | -            | -            |
@@ -26,7 +26,7 @@ The puzzle solutions can be found at [/src/puzzles](/src/puzzles)
 
 Cumulative runtime
 ```
-356.535µs
+68.380380ms
 ```
 
 ## Tools
