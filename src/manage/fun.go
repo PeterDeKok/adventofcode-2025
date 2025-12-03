@@ -148,7 +148,13 @@ func parseCalendar(line string, colors map[string]string) (l string, found bool)
 		}
 	}
 
-	line, _, _ = strings.Cut(line, `<span class="calendar-day">`)
+	cutDay := false
+
+	line, _, cutDay = strings.Cut(line, `<span class="calendar-day">`)
+
+	if cutDay {
+		line += strings.Repeat(" ", 5)
+	}
 
 	// Close whatever color was set.
 	// A massive assumption is made that open and closing tags are symetrical.

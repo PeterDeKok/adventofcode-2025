@@ -30,7 +30,7 @@ func Start(ctx context.Context, m *manage.Manager, r *remote.Client) *tea.Progra
 		st: st,
 
 		layout: NewLayout(st, &LayoutConfig{
-			Title: "Advent of Code | 2025",
+			Title: "Advent  of  Code    |    2025",
 		}),
 	}
 
