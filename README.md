@@ -15,7 +15,7 @@ The puzzle solutions can be found at [/src/puzzles](/src/puzzles)
 | 2025-12-02 | 2     | 68.023845ms  | 92.328795ms  |
 | 2025-12-03 | 2     | 65.863µs     | 247.522µs    |
 | 2025-12-04 | 2     | 679.012µs    | 5.973769ms   |
-| 2025-12-05 | 0     | -            | -            |
+| 2025-12-05 | 1     | 60.219µs     | -            |
 | 2025-12-06 | 0     | -            | -            |
 | 2025-12-07 | 0     | -            | -            |
 | 2025-12-08 | 0     | -            | -            |
@@ -26,7 +26,7 @@ The puzzle solutions can be found at [/src/puzzles](/src/puzzles)
 
 Cumulative runtime
 ```
-167.675341ms
+168.23556ms
 ```
 
 ## Tools
