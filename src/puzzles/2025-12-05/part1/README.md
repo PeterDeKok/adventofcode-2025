@@ -16,5 +16,5 @@ However, a link to the problem description will be provided and the solution can
 ## Runtime
 
 ```
-560.219µs
+324.625µs
 ```
