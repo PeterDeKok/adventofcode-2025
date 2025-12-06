@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Advent of Code 2025 - Day 1 - Secret Entrance</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+        <style>
+            :root {
+                --canvas-background: #0A0F14 /* A desaturated, extremely dark blue-charcoal. Colder than pure black. */;
+                --surface-background: #161B22 /* Used for cards, sidebars, and inputs. Slightly lighter, hinting at frozen earth. */;
+                --primary-accent: #00FF9D /* The "Sharp Green." Electric, high-visibility, synthetic evergreen. */;
+
+                --ice-blue: #38BDF8 /* Secondary,   Glacial LED / Hyperlinks */;
+                --snow-drift: #E2E8F0 /* Text (Body), "Off-white, soft on eyes" */;
+                --sleete-grey: #64748B /* Text (Muted),Comments / Metadata */;
+                --holly-berry: #EF4444 /* Error,       Critical bugs / Deletions */;
+                --candle-light: #FBBF24 /* Warning,     Warm glow / Deprecated */;
+
+                --secondary-accent: var(--ice-blue);
+                --text-body: var(--snow-drift);
+                --text-muted: var(--sleete-grey);
+
+                --dial-knob-background: var(--surface-background); /* var(--sleete-grey); */
+                --dial-knob-line: var(--primary-accent);
+                --dial-lines: var(--sleete-grey);
+
+                --transition-duration: .3125s;
+
+                font-family: "VT323", monospace;
+                font-weight: 400;
+                font-style: normal;
+            }
+
+            * {
+            }
+
+            html, body {
+                margin: 0;
+                padding: 0;
+
+                background: var(--canvas-background);
+                color: var(--text-body);
+
+                width: 100dvw;
+                height: 100dvh;
+            }
+
+            * {
+                box-sizing: border-box;
+                font-family: "VT323", monospace;
+            }
+
+            button {
+                font-size: 1.2em;
+                letter-spacing: 5px;
+                text-transform: uppercase;
+            }
+
+            body {
+                position: relative;
+                display: flex;
+                flex-direction: row-reverse;
+                justify-content: stretch;
+            }
+
+            #content {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                justify-content: center;
+
+                flex: 1 1 auto;
+                overflow: hidden;
+
+                #header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-end;
+
+                    flex: 0 0 auto;
+                    overflow: hidden;
+
+                    #speed {
+                        flex: 0 0 auto;
+                        padding: 1rem;
+                        background: var(--canvas-background);
+                        border: 0 none;
+                        border-bottom: 1px solid transparent;
+
+                        color: var(--text-body);
+                        opacity: 0.25;
+                        cursor: pointer;
+
+                        &:hover, &:focus {
+                            background: var(--surface-background);
+                        }
+
+                        &.active {
+                            border-bottom-color: var(--primary-accent);
+                            opacity: 1.0;
+                        }
+                    }
+                }
+
+                main {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 1rem;
+
+                    flex: 1 1 auto;
+                    overflow: hidden;
+
+                    #answer {
+                        display: block;
+                        position: relative;
+                        flex: 0 0 auto;
+                    }
+
+                    #dial {
+                        display: block;
+                        position: relative;
+                        flex: 0 0 auto;
+
+                        width: min(60dvw, 40rem);
+                        aspect-ratio: 1 / 1;
+
+                        padding: 2rem;
+
+                        #dial-label {
+                            display: block;
+                            position: absolute;
+
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+
+                            margin: 0;
+                            padding: 0;
+
+                            font-size: 2em;
+
+                            z-index: 2;
+
+                            &::after {
+                                content: '';
+                                display: block;
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+
+                                width: 100%;
+                                height: 100%;
+
+                                background: radial-gradient(circle at center, var(--primary-accent) 0%, transparent 50%);
+                                opacity: 0;
+                                transform: scale(1.0);
+
+                                transition: opacity .3s ease-out, transform .3s ease-out;
+                                will-change: opacity, transform;
+                            }
+                        }
+
+                        #dial-knob {
+                            position: relative;
+
+                            width: 100%;
+                            height: 100%;
+
+                            background: var(--dial-knob-background);
+                            border: 1rem var(--canvas-background) solid;
+                            border-radius: 50%;
+                            z-index: 1;
+
+                            transform: rotate(180deg);
+
+                            transition: transform var(--transition-duration, 1s) ease-in-out;
+                            will-change: transform;
+
+                            &::after {
+                                content: '';
+                                display: block;
+                                position: absolute;
+
+                                top: .5rem;
+                                left: 50%;
+                                transform: translateX(-2px);
+
+                                width: 1px;
+                                height: 10%;
+
+                                border: 2px var(--dial-knob-line) solid;
+                            }
+                        }
+
+                        #dial-lines, #dial-lines::before, #dial-lines::after {
+                            display: block;
+                            position: absolute;
+                            top: 0;
+                            right: 0;
+                            bottom: 0;
+                            left: 0;
+
+                            background: repeating-conic-gradient(var(--dial-lines) -.5deg .5deg, transparent .5deg 35.5deg);
+                            border-radius: 50%;
+                            overflow: hidden;
+
+                            z-index: 0;
+
+                            &::before {
+                                content: '';
+                                background: repeating-conic-gradient(var(--dial-lines) 0 .5deg, transparent .5deg 36deg);
+                                rotate: 18deg;
+                            }
+
+                            &::after {
+                                content: '';
+                                background: repeating-conic-gradient(var(--dial-lines) 0 .25deg, transparent .25deg 3.6deg);
+                                rotate: -.125deg;
+                            }
+                        }
+
+                        #dial-lines::before {
+                            content: '';
+                            top: 1rem;
+                            right: 1rem;
+                            bottom: 1rem;
+                            left: 1rem;
+                        }
+
+                        #dial-lines::after {
+                            content: '';
+                            top: 1.75rem;
+                            right: 1.75rem;
+                            bottom: 1.75rem;
+                            left: 1.75rem;
+                        }
+
+                        &::after {
+                            content: '';
+                            display: block;
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+
+                            width: 100%;
+                            height: 100%;
+
+                            background: radial-gradient(circle at center, var(--primary-accent) 0%, transparent 50%);
+                            opacity: 0;
+                            transform: scale(0.2);
+                            z-index: 1;
+
+                            transition: opacity .3s ease-out, transform .3s ease-out;
+                            will-change: opacity, transform;
+                        }
+
+                        &.ping {
+                            #dial-label::after {
+                                transition-duration: 0s, 0s;
+                                opacity: .075;
+                                transform: scale(10);
+                            }
+
+                            &::after {
+                                transition-duration: 0s, 0s;
+                                opacity: .075;
+                                transform: scale(1.0);
+                            }
+                        }
+                    }
+                }
+            }
+
+            aside {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                flex: 0 1 min(100dvw, 15rem);
+                gap: 1rem;
+                min-height: 100%;
+                max-height: 100%;
+
+                #select-input {
+                    display: flex;
+                    flex: 0 0 auto;
+
+                    button {
+                        flex: 1 1 auto;
+                        padding: 1rem;
+                        background: var(--canvas-background);
+                        border: 0 none;
+                        border-bottom: 1px solid transparent;
+
+                        color: var(--text-body);
+                        cursor: pointer;
+
+                        &:hover, &:focus {
+                            background: var(--surface-background);
+                        }
+
+                        &.active {
+                            border-bottom-color: var(--primary-accent);
+                        }
+                    }
+                }
+
+                #list {
+                    display: flex;
+                    position: relative;
+                    flex-direction: column;
+                    justify-content: flex-start;
+                    flex: 1 1 auto;
+
+                    overflow: scroll;
+                    white-space: pre-line;
+                    font-size: 16px;
+                    line-height: 1.2;
+
+                    scroll-behavior: smooth;
+
+                    --index: 0;
+
+                    &::after {
+                        content: '';
+                        display: block;
+                        position: absolute;
+                        width: 100%;
+                        height: 1.4em;
+                        top: 0;
+                        left: 0;
+                        background: var(--primary-accent);
+
+                        opacity: 0;
+                        transform: translateY(calc(1.2em * var(--index, 0)));
+
+                        transition: transform .2s ease-out;
+                    }
+
+                    &.animate::after {
+                        opacity: .1;
+                        will-change: transform;
+                    }
+                }
+            }
+        </style>
+
+        <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div id="content">
+            <section id="header">
+                <button id="speed">>>></button>
+            </section>
+            <main>
+                <h1 id="answer"></h1>
+                <div id="dial">
+                    <div id="dial-knob"></div>
+                    <p id="dial-label">50</p>
+                    <div id="dial-lines"></div>
+                </div>
+            </main>
+        </div>
+
+        <aside>
+            <section id="select-input">
+                <button data-key="input" class="active">Input</button>
+                <button data-key="sample">Sample</button>
+            </section>
+            <section id="list"></section>
+        </aside>
+
+        <script>
+            const list = document.getElementById('list');
+            const inputSelect = document.getElementById('select-input');
+            const inputButtons = inputSelect.getElementsByTagName('button');
+            const dial = document.getElementById('dial');
+            const dialKnob = document.getElementById('dial-knob');
+            const dialLabel = document.getElementById('dial-label');
+            const answer = document.getElementById('answer');
+            const speed = document.getElementById('speed');
+
+            const placeholderText = 'Click "input" to upload\nor "sample" to run the sample input.';
+            const stepDuration = 750 / 3;
+            const stepDelay = 750 / 3;
+            const frameDelay = 1000 / 60;
+            const speedOptions = [1, 2, 4, 8, 16];
+
+            const soundDuration = 0.3;
+            // Notes: C6, D6, E6, G6, A6, C7 (C Major Pentatonic, 6th Octave)
+            const harmonics = [1046.50, 1174.66, 1318.51, 1567.98, 1760.00, 2093.00];
+
+            const data = {
+                active: 'input',
+                input: placeholderText,
+                sample: 'L68\nL30\nR48\nL5\nR60\nL55\nL1\nL99\nR14\nL82',
+                result: { answer: 0 },
+            };
+
+            const animation = {
+                queue: [],
+                current: 50,
+                index: 0,
+                ticker: 0,
+                speedIndex: 0,
+                stepDuration,
+                stepDelay,
+                paused: false,
+            };
+
+                // Create the audio context once (globally or outside the trigger)
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            Object.defineProperty(window, 'aoc', {
+                get() {
+                    return { data, animation };
+                },
+            })
+
+            for (const el of inputButtons) {
+                el.addEventListener('click', () => {
+                    const previousActive = data.active;
+                    data.active = el.dataset.key;
+
+                    console.log('Changing to', data.active);
+
+                    for (const buttonEl of inputButtons) {
+                        buttonEl.classList.toggle('active', buttonEl.dataset.key === data.active);
+                    }
+
+                    if (data.active === 'input' && (data.input === placeholderText || previousActive === 'input')) {
+                        legacyFileOpen((fileContent) => {
+                            data.input = fileContent;
+
+                            updateData();
+                            play();
+                        });
+                    } else {
+                        updateData();
+                        play();
+                    }
+                });
+
+                el.classList.toggle('active', el.dataset.key === data.active);
+            }
+
+            dialKnob.addEventListener('click', () => {
+                if (!animation.paused) {
+                    console.log('Pausing');
+                }
+
+                window.clearInterval(animation.ticker);
+                animation.ticker = 0;
+                animation.paused = true;
+
+                if (animation.index >= animation.queue.length) {
+                    animation.index = 0;
+                }
+
+                animate();
+            });
+
+            speed.addEventListener('click', () => {
+                animation.speedIndex++;
+
+                if (animation.speedIndex >= speedOptions.length) {
+                    animation.speedIndex = 0;
+                }
+
+                animation.stepDuration = stepDuration / speedOptions[animation.speedIndex];
+                animation.stepDelay = stepDelay / speedOptions[animation.speedIndex];
+
+                updateStepDuration();
+
+                if (animation.ticker) {
+                    window.clearInterval(animation.ticker);
+                    animation.ticker = window.setInterval(animate, animation.stepDuration + animation.stepDelay);
+                }
+            });
+
+            updateStepDuration();
+            updateData();
+            updateResult();
+
+            function updateData() {
+                list.replaceChildren(data[data.active]);
+            }
+
+            function updateStepDuration() {
+                speed.innerText = `${speedOptions[animation.speedIndex]}x`;
+
+                const seconds = (animation.stepDuration / 1000).toFixed(5);
+                dialKnob.style.setProperty('--transition-duration', `${seconds}s`);
+            }
+
+            function updateResult() {
+                answer.innerText = `Zero x ${data.result.answer.toFixed(0)}`;
+            }
+
+            function play() {
+                stop();
+
+                if (data[data.active] === placeholderText) {
+                    console.log('not playing', animation, data);
+
+                    return ;
+                }
+
+                console.log('play');
+
+                const lines = data[data.active].split(/\r?\n/);
+
+                animation.index = 0;
+                animation.queue = lines.reduce((carry, line) => {
+                    if (!line) {
+                        return carry;
+                    }
+
+                    let d = parseInt(line.slice(1), 10);
+
+                    if (line.slice(0, 1) === 'L') {
+                        d = -d;
+                    }
+
+                    const next = carry.last + d;
+                    carry.queue.push(next);
+                    carry.last = next;
+
+                    return carry;
+                }, { queue: [50], last: 50 }).queue;
+                animation.current = 50;
+                animation.ticker = 0;
+                animation.stepDuration = stepDuration;
+                animation.stepDelay = stepDelay;
+                animation.paused = false;
+
+                if (!animation.queue.length) {
+                    console.log('not playing', animation, data);
+
+                    return;
+                }
+
+                const degrees = (animation.queue.deg * 3.6).toFixed(0);
+                dialKnob.style.transform = `rotate(${degrees}deg)`;
+                dialKnob.classList.add('animate');
+                list.classList.add('animate');
+                if (!animation.paused) {
+                    animation.ticker = window.setInterval(animate, animation.stepDuration + animation.stepDelay);
+                }
+
+                data.result = { answer: 0 };
+
+                updateStepDuration();
+                updateResult();
+
+                animate();
+            }
+
+            function ping(result) {
+                window.requestAnimationFrame(() => {
+                    console.log('PING');
+
+                    dial.classList.add('ping');
+                    playDing();
+                    result.answer++;
+                    updateResult();
+
+                    window.requestAnimationFrame(() => {
+                        dial.classList.remove('ping');
+                    });
+                });
+            }
+
+            function pings(current, next, stepDuration, result) {
+                const diff = next - current;
+
+                if (!diff) {
+                    // No turn
+                    return;
+                }
+
+                const absDiff = Math.abs(diff); // [0, +Inf)
+                const currentNormalized = ((current % 100) + 100) % 100; // [0, 100)
+
+                const normalizedAbsToZero = diff < 0 // (0, 100]
+                    ? currentNormalized ? currentNormalized : 100 // Turning left
+                    : 100 - currentNormalized; // Turning right
+
+                if (normalizedAbsToZero > absDiff) {
+                    return;
+                }
+
+                const timeToZero = (normalizedAbsToZero / absDiff) * stepDuration; // (0.0, 1.0]
+                const fullTurnsAfterFirstZero = Math.floor((absDiff - normalizedAbsToZero) / 100); // [0, +Inf);
+                const timeBetweenZero = (100 / absDiff) * stepDuration;
+
+                window.setTimeout(() => ping(result), timeToZero - frameDelay);
+                for (let i = 1; i <= fullTurnsAfterFirstZero; i++) {
+                    window.setTimeout(() => ping(result), timeToZero + i * timeBetweenZero - frameDelay);
+                }
+            }
+
+            function playDing() {
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+
+                const randomFreq = harmonics[Math.floor(Math.random() * harmonics.length)];
+
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(randomFreq, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.8, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + soundDuration);
+
+                // Source -> Volume -> Speakers
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + soundDuration);
+            }
+
+            function animate() {
+                if (animation.index >= animation.queue.length) {
+                    stop();
+                    return;
+                }
+
+                const next = animation.index >= animation.queue.length ? 50 : animation.queue[animation.index];
+                const diff = next - animation.current;
+
+                pings(animation.current, next, animation.stepDuration, data.result);
+
+                console.log('tick (queue #%d, index %d → %d = %d)', animation.queue.length, animation.index, diff, next);
+
+                list.style.setProperty('--index', (animation.index - 1).toFixed(0));
+                animation.index++;
+                animation.current = next;
+                dialKnob.style.transform = `rotate(${(next * 3.6).toFixed(0)}deg)`;
+                dialLabel.innerText = modE(next, 100).toFixed(0);
+
+                // Scroll
+                const halfListItemsOnScreen = Math.floor(list.getBoundingClientRect().height / (16 * 1.2 * 2))
+                if (animation.index > halfListItemsOnScreen - 3) {
+                    list.scrollTo(0, (animation.index - halfListItemsOnScreen + 3) * 16 * 1.2);
+                } else {
+                    list.scrollTo(0, 0);
+                }
+            }
+
+            function stop() {
+                console.log('stop');
+
+                window.clearInterval(animation.ticker);
+                animation.ticker = 0;
+                dialKnob.classList.remove('animate');
+                list.classList.remove('animate');
+                animation.paused = false;
+            }
+
+            function modE(D, d) {
+                let r = D % d;
+
+                if (r < 0) {
+                    if (d > 0) {
+                        r = r + d;
+                    } else {
+                        r = r - d;
+                    }
+                }
+
+                return r;
+            }
+
+            function legacyFileOpen(cb) {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.onchange = function () {
+                    input.files[0].arrayBuffer().then(function (arrayBuffer) {
+                        const content = new TextDecoder().decode(arrayBuffer);
+                        console.log('loaded file content', input.files[0].name);
+                        cb(content);
+                    });
+                }
+                input.click();
+            }
+        </script>
+    </body>
+</html>
