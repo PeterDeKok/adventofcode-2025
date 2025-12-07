@@ -411,9 +411,9 @@
                 stepDuration,
                 stepDelay,
                 paused: false,
+                sounds: 0,
             };
 
-                // Create the audio context once (globally or outside the trigger)
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
             Object.defineProperty(window, 'aoc', {
@@ -606,6 +606,8 @@
             }
 
             function playDing() {
+                animation.sounds++;
+
                 const oscillator = audioCtx.createOscillator();
                 const gainNode = audioCtx.createGain();
 
@@ -613,7 +615,7 @@
 
                 oscillator.type = 'sine';
                 oscillator.frequency.setValueAtTime(randomFreq, audioCtx.currentTime);
-                gainNode.gain.setValueAtTime(0.8, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.8 * (1/animation.sounds), audioCtx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + soundDuration);
 
                 // Source -> Volume -> Speakers
@@ -621,6 +623,9 @@
                 gainNode.connect(audioCtx.destination);
                 oscillator.start();
                 oscillator.stop(audioCtx.currentTime + soundDuration);
+                oscillator.addEventListener('ended', () => {
+                    animation.sounds--;
+                });
             }
 
             function animate() {
